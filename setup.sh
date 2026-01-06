@@ -53,7 +53,7 @@ fi
 if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}🐳 Docker not found. Installing...${NC}"
     sudo apt update
-    sudo apt install -y docker.io docker-compose
+    sudo apt install -y docker.io
     sudo systemctl enable --now docker
     sudo usermod -aG docker $USER
     echo ""
@@ -74,15 +74,15 @@ fi
 
 # Stop any existing containers
 echo -e "${GREEN}🛑 Stopping existing containers...${NC}"
-docker-compose down 2>/dev/null || true
+docker compose down 2>/dev/null || true
 
 # Pull latest images
 echo -e "${GREEN}📥 Pulling Docker images...${NC}"
-docker-compose pull
+docker compose pull
 
 # Start services
 echo -e "${GREEN}🚀 Starting services...${NC}"
-docker-compose up -d
+docker compose up -d
 
 # Wait for services to start
 echo -e "${GREEN}⏳ Waiting for services to initialize...${NC}"
@@ -91,7 +91,7 @@ sleep 10
 # Check status
 echo ""
 echo -e "${GREEN}📊 Service Status:${NC}"
-docker-compose ps
+docker compose ps
 
 echo ""
 echo -e "${GREEN}✅ Setup Complete!${NC}"
@@ -105,5 +105,5 @@ echo "Check VPN status:"
 echo "  docker logs gluetun --tail 20"
 echo ""
 echo "View all logs:"
-echo "  docker-compose logs -f"
+echo "  docker compose logs -f"
 echo ""

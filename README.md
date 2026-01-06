@@ -36,7 +36,7 @@ That's it! All services will start automatically.
 ```bash
 cd ~/home-server
 git pull
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 📦 Services
@@ -67,27 +67,27 @@ docker-compose up -d
 
 ```bash
 # View all service status
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # View specific service logs
-docker-compose logs -f gluetun
-docker-compose logs -f qbittorrent
+docker compose logs -f gluetun
+docker compose logs -f qbittorrent
 
 # Restart all services
-docker-compose restart
+docker compose restart
 
 # Restart specific service
-docker-compose restart plex
+docker compose restart plex
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # Update all services
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 
 # Check VPN IP
 docker exec gluetun wget -qO- https://ipinfo.io/json
@@ -97,23 +97,23 @@ docker exec gluetun wget -qO- https://ipinfo.io/json
 
 **VPN not connecting:**
 ```bash
-docker-compose logs gluetun
+docker compose logs gluetun
 # Check credentials in .env file
 ```
 
 **qBittorrent can't access internet:**
 ```bash
 # Restart VPN first, then qBittorrent
-docker-compose restart gluetun
+docker compose restart gluetun
 sleep 10
-docker-compose restart qbittorrent
+docker compose restart qbittorrent
 ```
 
 **Services not starting after reboot:**
 ```bash
 # All services have restart: unless-stopped
 # They should auto-start. If not:
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 📁 Directory Structure

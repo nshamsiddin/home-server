@@ -20,7 +20,7 @@ ssh shams@192.168.1.23
 
 ```bash
 sudo apt update
-sudo apt install -y git docker.io docker-compose
+sudo apt install -y git docker.io
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 ```
@@ -65,7 +65,7 @@ The script will:
 
 ```bash
 # Check all services are running
-docker-compose ps
+docker compose ps
 
 # Check VPN connection
 docker logs gluetun --tail 20
@@ -157,15 +157,15 @@ docker-compose restart
 
 ```bash
 cd ~/home-server
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
 ### Update Single Service
 
 ```bash
-docker-compose pull plex
-docker-compose up -d plex
+docker compose pull plex
+docker compose up -d plex
 ```
 
 ## Troubleshooting
@@ -174,10 +174,10 @@ docker-compose up -d plex
 
 ```bash
 # Check logs
-docker-compose logs
+docker compose logs
 
 # Check specific service
-docker-compose logs gluetun
+docker compose logs gluetun
 ```
 
 ### VPN Not Connecting
@@ -195,7 +195,7 @@ cat .env | grep NORDVPN
 All services should auto-start. If not:
 ```bash
 cd ~/home-server
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Monitoring
@@ -203,17 +203,17 @@ docker-compose up -d
 ### Check Service Status
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 ### View Real-time Logs
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f gluetun
+docker compose logs -f gluetun
 ```
 
 ### Check VPN IP
@@ -242,5 +242,5 @@ docker system df
 ### Restart All Services
 
 ```bash
-docker-compose restart
+docker compose restart
 ```
