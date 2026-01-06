@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # VPN Client (Gluetun) - All torrent traffic goes through this
   gluetun:
@@ -42,7 +40,7 @@ services:
     volumes:
       - /srv/qbittorrent:/config
       - /srv/downloads:/downloads
-      - /srv/media:/media
+      - /mnt/media:/media
     restart: unless-stopped
 
   # Plex Media Server
@@ -59,7 +57,7 @@ services:
       - VERSION=docker
     volumes:
       - /srv/plex:/config
-      - /srv/media:/media
+      - /mnt/media:/media
     restart: unless-stopped
 
   # WireGuard VPN Server (for remote access)
