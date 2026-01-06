@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # VPN Client (Gluetun) - All torrent traffic goes through this
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - "8080:8080"   # qBittorrent Web UI
+      - "6881:6881"   # qBittorrent TCP
+      - "6881:6881/udp" # qBittorrent UDP
+    volumes:
+      - /srv/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${NORDVPN_USER}
+      - OPENVPN_PASSWORD=${NORDVPN_PASSWORD}
+      - SERVER_COUNTRIES=${VPN_COUNTRY:-Ireland}
+      - OPENVPN_PROTOCOL=tcp
+      - UPDATER_PERIOD=24h
+      - FIREWALL_VPN_INPUT_PORTS=51820
+      - TZ=${TZ:-Europe/Dublin}
+    restart: unless-stopped
+
+  # Torrent Client (qBittorrent) - Shares Gluetun's network
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"  # VPN kill-switch
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-Europe/Dublin}
+      - WEBUI_PORT=8080
+    volumes:
+      - /srv/qbittorrent:/config
+      - /srv/downloads:/downloads
+      - /srv/media:/media
+    restart: unless-stopped
+
+  # Plex Media Server
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
+    network_mode: host
+    devices:
+      - /dev/dri:/dev/dri  # Intel Quick Sync hardware transcoding
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-Europe/Dublin}
+      - VERSION=docker
+    volumes:
+      - /srv/plex:/config
+      - /srv/media:/media
+    restart: unless-stopped
+
+  # WireGuard VPN Server (for remote access)
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-Europe/Dublin}
+      - SERVERURL=${DDNS_DOMAIN}
+      - SERVERPORT=51820
+      - PEERS=${WIREGUARD_PEERS:-phone,laptop}
+      - PEERDNS=auto
+      - INTERNAL_SUBNET=10.13.13.0
+    volumes:
+      - /srv/wireguard:/config
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "51820:51820/udp"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+
+  # DuckDNS (Dynamic DNS)
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - TZ=${TZ:-Europe/Dublin}
+    restart: unless-stopped
+
+  # Portainer (Docker Management UI)
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: unless-stopped
+
+volumes:
+  portainer_data:
